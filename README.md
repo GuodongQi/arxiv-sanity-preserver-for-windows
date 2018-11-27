@@ -1,17 +1,8 @@
 
-# arxiv sanity preserver
+# arxiv sanity preserver for Windows
 
-This project is a web interface that attempts to tame the overwhelming flood of papers on Arxiv. It allows researchers to keep track of recent papers, search for papers, sort papers by similarity to any paper, see recent popular papers, to add papers to a personal library, and to get personalized recommendations of (new or old) Arxiv papers. This code is currently running live at [www.arxiv-sanity.com/](http://www.arxiv-sanity.com/), where it's serving 25,000+ Arxiv papers from Machine Learning (cs.[CV|AI|CL|LG|NE]/stat.ML) over the last ~3 years. With this code base you could replicate the website to any of your favorite subsets of Arxiv by simply changing the categories in `fetch_papers.py`.
+This project is forked form [arxiv-sanity-preserver](https://github.com/karpathy/arxiv-sanity-preserver), but it only works on linux. so, I make it perform well on Windows. 
 
-![user interface](https://raw.github.com/karpathy/arxiv-sanity-preserver/master/ui.jpeg)
-
-### Code layout
-
-There are two large parts of the code:
-
-**Indexing code**. Uses Arxiv API to download the most recent papers in any categories you like, and then downloads all papers, extracts all text, creates tfidf vectors based on the content of each paper. This code is therefore concerned with the backend scraping and computation: building up a database of arxiv papers, calculating content vectors, creating thumbnails, computing SVMs for people, etc.
-
-**User interface**. Then there is a web server (based on Flask/Tornado/sqlite) that allows searching through the database and filtering papers by similarity, etc.
 
 ### Dependencies
 
@@ -23,7 +14,13 @@ $ source env/bin/activate       # optional: use virtualenv
 $ pip install -r requirements.txt
 ```
 
-You will also need [ImageMagick](http://www.imagemagick.org/script/index.php) and [pdftotext](https://poppler.freedesktop.org/), which you can install on Ubuntu as `sudo apt-get install imagemagick poppler-utils`. Bleh, that's a lot of dependencies isn't it.
+You will also need [ImageMagick](http://www.imagemagick.org/script/index.php) and [pdftotext](https://poppler.freedesktop.org/)
+
+[ImageMagick](http://www.imagemagick.org/script/index.php) is easy to install, we need version>7.0
+
+[pdftotext](https://poppler.freedesktop.org/) can not be installed by pip, we can download windows bin release from homepage, and extract *.exe to PYTHON environment.
+
+[sqlite3](https://www.sqlite.org/download.html) is used to import sql, though it is integrated in python, but it cannot be used in cmd. we should download pre-release zip, extract sqlite3.exe to PATHON environment
 
 ### Processing pipeline
 
@@ -37,9 +34,7 @@ The processing pipeline requires you to run a series of scripts, and at this sta
 6. Run `buildsvm.py` to train SVMs for all users (if any), exports a pickle `user_sim.p`
 7. Run `make_cache.py` for various preprocessing so that server starts faster (and make sure to run `sqlite3 as.db < schema.sql` if this is the very first time ever you're starting arxiv-sanity, which initializes an empty database).
 8. Start the mongodb daemon in the background. Mongodb can be installed by following the instructions here - https://docs.mongodb.com/tutorials/install-mongodb-on-ubuntu/.
-  * Start the mongodb server with - `sudo service mongod start`.
-  * Verify if the server is running in the background : The last line of /var/log/mongodb/mongod.log file must be - 
-`[initandlisten] waiting for connections on port <port> `
+  
 9. Run the flask server with `serve.py`. Visit localhost:5000 and enjoy sane viewing of papers!
 
 Optionally you can also run the `twitter_daemon.py` in a screen session, which uses your Twitter API credentials (stored in `twitter.txt`) to query Twitter periodically looking for mentions of papers in the database, and writes the results to the pickle file `twitter.p`.
@@ -68,10 +63,7 @@ python buildsvm.py
 python make_cache.py
 ```
 
-I run the server in a screen session, so `screen -S serve` to create it (or `-r` to reattach to it) and run:
-
 ```bash
 python serve.py --prod --port 80
 ```
 
-The server will load the new files and begin hosting the site. Note that on some systems you can't use port 80 without `sudo`. Your two options are to use `iptables` to reroute ports or you can use [setcap](http://stackoverflow.com/questions/413807/is-there-a-way-for-non-root-processes-to-bind-to-privileged-ports-1024-on-l) to elavate the permissions of your `python` interpreter that runs `serve.py`. In this case I'd recommend careful permissions and maybe virtualenv, etc.
