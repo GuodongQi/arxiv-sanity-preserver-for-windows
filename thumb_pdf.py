@@ -8,6 +8,8 @@ import time
 import shutil
 import sys
 from subprocess import Popen
+import win32con
+import win32gui
 
 from utils import Config
 
@@ -15,6 +17,7 @@ from utils import Config
 if not shutil.which('convert'):  # shutil.which needs Python 3.3+
     print("ERROR: you don\'t have imagemagick installed. Install it first before calling this script")
     sys.exit()
+
 
 # create if necessary the directories we're using for processing and output
 pdf_dir = os.path.join('data', 'pdf')
@@ -65,17 +68,27 @@ for i, p in enumerate(pdf_files):
     pp = Popen(
         ['magick', '%s[0-4]' % (pdf_path,), '-thumbnail', 'x255', os.path.join(Config.tmp_dir, 'thumb.png')])
         # ['convert', '%s[0-4]' % (pdf_path, ), os.path.join(Config.tmp_dir, 'thumb.png')])
+    # handle = win32gui.FindWindow(0, 'ImageMagick Studio library and utility programs')
+    # if handle:
+    #     win32gui.PostMessage(handle, win32con.WM_CLOSE)
     t0 = time.time()
-    while time.time() - t0 < 15:  # give it 15 seconds deadline
+    while 1:  # give it 15 seconds deadline
         ret = pp.poll()
+        handle = win32gui.FindWindow(0, 'ImageMagick Studio library and utility programs')
+        if handle:
+            win32gui.PostMessage(handle, win32con.WM_CLOSE)
+            break
         if not (ret is None):
             # process terminated
             break
-        time.sleep(0.1)
-    ret = pp.poll()
-    if ret is None:
-        print("convert command did not terminate in 20 seconds, terminating.")
-        pp.terminate()  # give up
+        # time.sleep(0.01)
+    # ret = pp.poll()
+    # # handle = win32gui.FindWindow(0, 'ImageMagick Studio library and utility programs')
+    # # if handle:
+    # #     win32gui.PostMessage(handle, win32con.WM_CLOSE)
+    # if ret is None:
+    #     print("convert command did not terminate in 20 seconds, terminating.")
+    #     pp.terminate()  # give up
 
 
     if not os.path.isfile(os.path.join(Config.tmp_dir, 'thumb-0.png')):
