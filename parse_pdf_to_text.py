@@ -42,7 +42,7 @@ for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't r
   if not os.path.isfile(txt_path):
     # there was an error with converting the pdf
     print('there was a problem with parsing %s to text, creating an empty text file.' % (pdf_path, ))
-    os.system('touch ' + txt_path) # create empty file, but it's a record of having tried to convert
+    os.system('echo{0}>{1}'.format(" ", txt_path) ) # create empty file, but it's a record of having tried to convert
 
   time.sleep(0.01) # silly way for allowing for ctrl+c termination
 
