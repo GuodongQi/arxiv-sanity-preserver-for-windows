@@ -97,7 +97,7 @@ h1 {
 }
 .animg {
 	text-align: left;
-	height: 156px;
+	height: 255px;
 }
 .animg img {
 	max-width: 100%;
@@ -133,7 +133,7 @@ h1 {
 
   height: 40px;
   font-size: 22px;
-  color: "#333";
+  color: #333;
 
   padding-left: 50px;
 

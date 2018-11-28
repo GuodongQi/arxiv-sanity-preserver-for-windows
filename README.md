@@ -62,7 +62,7 @@ python analyze.py
 python buildsvm.py
 python make_cache.py
 ```
-
+NOTE:while running thumb_pdf.py，we will see a crashed messagebox that disappear immediately. It is normal. we should run the script when PC is spare
 ```bash
 python serve.py --prod --port 80
 ```
